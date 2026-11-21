@@ -1,0 +1,10 @@
+import Link from 'next/link';
+import { Menu } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { adminRoutes } from '../../config/routes';
+import { AdminNavigation } from './admin-navigation';
+import { LogoutButton } from './logout-button';
+
+export function AdminShell({ children }: Readonly<{ children: ReactNode }>) {
+  return <div className="min-h-screen bg-background text-foreground lg:grid lg:grid-cols-[16rem_1fr]"><aside className="hidden border-r border-border bg-card lg:flex lg:flex-col"><div className="flex h-16 items-center border-b border-border px-5"><Link className="font-semibold tracking-tight" href={adminRoutes.dashboard}>Interior Studio</Link></div><nav aria-label="Main navigation" className="flex-1 space-y-6 p-4"><AdminNavigation /></nav><div className="border-t border-border p-4"><div className="mb-2 px-3 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">Account</div><LogoutButton /></div></aside><div className="min-w-0"><header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6 lg:px-8"><details className="relative lg:hidden"><summary className="flex cursor-pointer list-none items-center gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium"><Menu aria-hidden="true" className="size-4" />Menu</summary><nav aria-label="Mobile navigation" className="absolute left-0 top-12 w-64 rounded-lg border border-border bg-card p-3 shadow-card"><AdminNavigation /><div className="mt-2 border-t border-border pt-2"><LogoutButton /></div></nav></details><div className="ml-auto flex items-center gap-3 text-sm text-muted-foreground"><span className="hidden sm:inline">Administrator</span><span aria-hidden="true" className="grid size-8 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground">A</span></div></header><main className="p-4 sm:p-6 lg:p-8"><div className="mx-auto max-w-7xl">{children}</div></main></div></div>;
+}

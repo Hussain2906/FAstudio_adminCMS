@@ -1,27 +1,42 @@
 {
-  "name": "fs_admin",
+  "name": "admin",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "generate:contracts": "pnpm --dir packages/cms-contracts build",
+    "dev": "next dev --port 3001",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "generate:theme": "pnpm --dir packages/design-system generate",
+    "test:theme": "pnpm --dir packages/design-system test",
+    "predev": "pnpm generate:contracts",
+    "prebuild": "pnpm generate:contracts && pnpm generate:theme",
+    "start": "next start --port ${PORT:-3001}",
+    "lint": "eslint .",
+    "check:backend": "node scripts/check-backend.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@fs/cms-contracts": "file:packages/cms-contracts",
+    "@fs/design-system": "file:packages/design-system",
+    "@base-ui/react": "^1.9.0",
+    "class-variance-authority": "^0.7.1",
+    "cn": "^0.5.0",
+    "lucide-react": "1.60.0",
     "next": "16.4.2",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
     "eslint-config-next": "16.4.2",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "prettier": "3.9.10",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3"
   },
   "packageManager": "pnpm@12.14.0"
 }

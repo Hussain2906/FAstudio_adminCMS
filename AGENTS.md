@@ -1,3 +1,8 @@
+# UI implementation instructions
+
+Before creating or modifying any UI component, page, layout, or styling, read DESIGN.md. Follow its design tokens, semantic color mappings, accessibility standards, and application-specific design rules. Never introduce arbitrary color values or inconsistent component styles. Update DESIGN.md when an approved design-system change is made.
+
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
