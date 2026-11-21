@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LockKeyhole } from 'lucide-react';
 import { adminRoutes } from '../../config/routes';
+import { getSafeLoginRedirect } from '../../config/login-redirect';
 import { apiClient, ApiError } from '../../lib/api/client';
 
 export default function LoginPage() {
@@ -15,7 +16,7 @@ export default function LoginPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError(undefined); setIsPending(true);
-    try { await apiClient.post('auth/login', { email, password }); router.replace(adminRoutes.dashboard); router.refresh(); }
+    try { await apiClient.post('auth/login', { email, password }); const requestedPath = new URLSearchParams(window.location.search).get('from'); router.replace(getSafeLoginRedirect(requestedPath, window.location.origin, adminRoutes.dashboard)); router.refresh(); }
     catch (cause) { setError(cause instanceof ApiError && cause.status === 429 ? 'Too many attempts. Try again later.' : 'Invalid email or password.'); }
     finally { setIsPending(false); }
   }

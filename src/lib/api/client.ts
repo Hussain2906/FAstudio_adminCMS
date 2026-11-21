@@ -22,10 +22,7 @@ export class ApiError extends Error {
 export class ApiClient {
   private readonly baseUrl: string;
 
-  constructor(baseUrl = process.env.NEXT_PUBLIC_API_URL) {
-    if (!baseUrl) {
-      throw new Error('NEXT_PUBLIC_API_URL is not configured.');
-    }
+  constructor(baseUrl = '/api/v1') {
     this.baseUrl = baseUrl.replace(/\/$/, '');
   }
 

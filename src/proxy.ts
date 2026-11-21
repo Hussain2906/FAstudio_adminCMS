@@ -5,8 +5,15 @@ const sessionCookieName = process.env.AUTH_SESSION_COOKIE_NAME ?? 'fs_admin_sess
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  // API requests pass through to the backend and should not enter the page redirect flow.
+  if (pathname === '/api/v1' || pathname.startsWith('/api/v1/')) {
+    return NextResponse.next();
+  }
+
   const sessionToken = request.cookies.get(sessionCookieName)?.value;
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+  const backendUrl =
+    process.env.NEXT_PUBLIC_API_URL ??
+    'https://fa-studio-backend-452750258410.northamerica-northeast2.run.app/api/v1';
   let authenticated = false;
 
   if (sessionToken && backendUrl) {
