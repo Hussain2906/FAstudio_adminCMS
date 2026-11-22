@@ -6,6 +6,7 @@ const backendApiUrl = (
 ).replace(/\/+$/, "");
 
 const nextConfig: NextConfig = {
+  experimental: { agentUpgrade: "security" },
   transpilePackages: ["@fs/design-system", "@fs/cms-contracts"],
   images: { remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }] },
   async rewrites() {
