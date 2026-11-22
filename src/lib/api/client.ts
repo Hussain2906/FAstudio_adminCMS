@@ -1,3 +1,5 @@
+import { logAuthDiagnostic, safeRequestId } from '@/lib/auth-diagnostics';
+
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
 export interface ApiRequestOptions<TBody = unknown> {
@@ -29,6 +31,9 @@ export class ApiClient {
   async request<TResponse, TBody = unknown>(path: string, options: ApiRequestOptions<TBody> = {}): Promise<TResponse> {
     const { method = 'GET', body, headers, signal, accessToken } = options;
     const requestHeaders = new Headers(headers);
+    const isLogin = path.replace(/^\//, '') === 'auth/login';
+    const requestId = isLogin ? safeRequestId(requestHeaders.get('x-request-id')) : undefined;
+    if (requestId) requestHeaders.set('x-request-id', requestId);
 
     if (body !== undefined) requestHeaders.set('Content-Type', 'application/json');
     if (accessToken) requestHeaders.set('Authorization', `Bearer ${accessToken}`);
@@ -48,8 +53,11 @@ export class ApiClient {
         cache: 'no-store',
       });
     } catch (error) {
+      if (requestId) logAuthDiagnostic('login_transport_error', { requestId, path: '/api/v1/auth/login', status: 0 });
       throw new ApiError('Unable to reach the backend.', 0, error);
     }
+
+    if (requestId) logAuthDiagnostic('login_http_response', { requestId, path: '/api/v1/auth/login', status: response.status });
 
     const payload = await this.parseResponse(response);
     if (!response.ok) {

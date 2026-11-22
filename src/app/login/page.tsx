@@ -6,6 +6,7 @@ import { LockKeyhole } from "lucide-react";
 import { adminRoutes } from "../../config/routes";
 import { getSafeLoginRedirect } from "../../config/login-redirect";
 import { apiClient, ApiError } from "../../lib/api/client";
+import { logAuthDiagnostic } from "../../lib/auth-diagnostics";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,17 +19,26 @@ export default function LoginPage() {
     event.preventDefault();
     setError(undefined);
     setIsPending(true);
+    const requestId = crypto.randomUUID();
+    logAuthDiagnostic("login_navigation_started", { requestId, path: "/login" });
     try {
-      await apiClient.post("auth/login", { email, password });
+      await apiClient.post("auth/login", { email, password }, { headers: { "x-request-id": requestId } });
+      logAuthDiagnostic("login_response_handled", { requestId, path: "/api/v1/auth/login", status: 201 });
       const requestedPath = new URLSearchParams(window.location.search).get("from");
       const destination = getSafeLoginRedirect(
         requestedPath,
         window.location.origin,
         adminRoutes.dashboard,
       );
+      logAuthDiagnostic("post_login_navigation", { requestId, path: window.location.pathname, destination });
       router.replace(destination);
       router.refresh();
     } catch (cause) {
+      logAuthDiagnostic("login_response_error", {
+        requestId,
+        path: "/api/v1/auth/login",
+        status: cause instanceof ApiError ? cause.status : 0,
+      });
       setError(
         cause instanceof ApiError && cause.status === 429
           ? "Too many attempts. Try again later."

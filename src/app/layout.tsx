@@ -13,5 +13,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en" data-auth-diagnostics={process.env.AUTH_DIAGNOSTICS_ENABLED === "true"}><body>{children}</body></html>;
 }
