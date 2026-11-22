@@ -7,7 +7,9 @@ const sessionCookieName = process.env.AUTH_SESSION_COOKIE_NAME ?? 'fs_admin_sess
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const requestId = safeRequestId(request.headers.get('x-request-id'));
-  const sessionCookiePresent = request.cookies.has(sessionCookieName);
+  const configuredSessionCookiePresent = request.cookies.has(sessionCookieName);
+  const firebaseSessionCookiePresent = request.cookies.has('__session');
+  const sessionCookiePresent = configuredSessionCookiePresent || firebaseSessionCookiePresent;
   const csrfCookiePresent = request.cookies.has('fs_admin_csrf');
   // API requests pass through to the backend and should not enter the page redirect flow.
   if (pathname === '/api/v1' || pathname.startsWith('/api/v1/')) {
@@ -15,7 +17,10 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const sessionToken = request.cookies.get(sessionCookieName)?.value;
+  const sessionCookie = configuredSessionCookiePresent
+    ? { name: sessionCookieName, value: request.cookies.get(sessionCookieName)?.value }
+    : { name: '__session', value: request.cookies.get('__session')?.value };
+  const sessionToken = sessionCookie.value;
   const backendUrl =
     process.env.NEXT_PUBLIC_API_URL ??
     'https://fa-studio-backend-452750258410.northamerica-northeast2.run.app/api/v1';
@@ -24,7 +29,7 @@ export async function proxy(request: NextRequest) {
   if (sessionToken && backendUrl) {
     try {
       const response = await fetch(`${backendUrl}/auth/session`, {
-        headers: { cookie: `${sessionCookieName}=${encodeURIComponent(sessionToken)}`, 'x-request-id': requestId },
+        headers: { cookie: `${sessionCookie.name}=${encodeURIComponent(sessionToken)}`, 'x-request-id': requestId },
         cache: 'no-store',
       });
       authenticated = response.ok;
